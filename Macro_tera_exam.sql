@@ -1,13 +1,12 @@
 
---øàã 1 ñîçäàåì ïóñòóþ òàáëèöó ñî ñòðóêòóðîé
---øàã 2 ïèøåì ìàêðîñ
---øàã 3 äîáàâëÿåì çíà÷åíèÿ
+--Шаг 1. Формируем вьюху со структурой запроса(create volatile .... where 1= 0)
+--Шаг 2. Пишем макрос, в параметры передаем месяцы
+--Шаг 3. Добавляем значения  (Execute) 
 
 replace macro nps_all (s_nps date, e_nps date, sdate date, edate date) as (
 
 --create multiset volatile table subs_all, no log as (
 insert into subs_all
-
 select a.* from (
 	select
 	 a.create_date,
