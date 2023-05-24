@@ -1,5 +1,10 @@
--- drop table qwe 
+Диапазон от 30 дней и до после даты из первой таблицы, используя функции ADD_MONTHS и INTERVAL для вычисления конкретных дат. 
+Затем мы сравниваем даты из второй таблицы с этим диапазоном при помощи оператора BETWEEN.
 
+select top 100  create_date, ADD_MONTHS(t1.create_date, -1)  , ADD_MONTHS(t1.create_date, 0) - INTERVAL '30'DAY from uat_ca.v3_nps_bu t1 
+
+
+-- drop table qwe 
 create multiset volatile table qwe as(
 --------------------
 
@@ -20,5 +25,5 @@ where  create_date > date '2022-01-01'
 
 -----------------
 ) with data 
-on commit preserve rows
+on commit preserve rows -- необходимо явно прописывать
 --ON COMMIT DELETE ROWS по умолчанию
