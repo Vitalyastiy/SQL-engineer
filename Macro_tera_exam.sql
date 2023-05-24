@@ -5,9 +5,13 @@
 
 replace macro nps_all (s_nps date, e_nps date, sdate date, edate date) as (
 
+
+replace macro nps_all (s_nps date, e_nps date, sdate date, edate date) as (
+
 --create multiset volatile table subs_all, no log as (
+
 insert into subs_all
-select a.* from (
+select * from (
 	select
 	 a.create_date,
 	 a.cluster_actual as cluster_name,
@@ -36,16 +40,16 @@ select a.* from (
 	      else '56 +' end as age_gr,
 	-- a.gender,
 	 case when a.gender is null or a.gender = -1 then 'n/a'
-	      when a.gender = 0 then 'Ì'
-	      when a.gender = 1 then 'Æ'
+	      when a.gender = 0 then 'М'
+	      when a.gender = 1 then 'Ж'
 	      end as gender,
 	 a.data_gb,
 	 case when data_gb is null then '0'
 	      when data_gb = 0 then '0'
 	      when data_gb <= 10 then '10'
-	      when data_gb <= 30 then 'îò 10-30'
-	      when data_gb <= 50 then 'îò 30-50'
-	      when data_gb <= 100 then 'îò 50-100'
+	      when data_gb <= 30 then 'от 10-30'
+	      when data_gb <= 50 then 'от 30-50'
+	      when data_gb <= 100 then 'от 50-100'
 	      else '100+'
 	 end as data_gr,
 	--
@@ -60,19 +64,24 @@ select a.* from (
 	from uat_ca.v3_nps_bu a
 	--
 	inner join uat_ca.mc_alladin_subs t1 on a.subs_id = t1.subs_id
-	 --and t1.event_date_instal >= date '2022-06-01'
-	 --and t1.event_date_instal < date '2022-08-01'
-	 and t1.event_date_instal >= :sdate
-	 and t1.event_date_instal < :edate
+	 and t1.event_date_instal >= date '2022-06-01'
+	 and t1.event_date_instal < date '2022-08-01'
+	-- and t1.event_date_instal >= :sdate
+	-- and t1.event_date_instal < :edate
 	where 1=1
-	 --and a.create_date >= date '2022-07-01'
-	 --and a.create_date < date '2022-08-01'
-	 and a.create_date >= :s_nps
-	 and a.create_date < :e_nps
+	 and a.create_date >= date '2022-07-01'
+	 and a.create_date < date '2022-08-01'
+	-- and a.create_date >= :s_nps
+	-- and a.create_date < :e_nps
 ) a
-where 1=0 ;
---)with no data;
-);
+where 1=1 
+;
+
+--where 1=0 
+--)with data
+--on commit preserve rows;
+
+--);
 
 --2022
 /*ßíâàðü*/     Execute nps_all (date '2022-01-01', date '2022-02-01', date '2021-12-01', date '2022-02-01');
