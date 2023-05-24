@@ -1,15 +1,7 @@
-select count(*) from uat_ca.mc_alladin_subs; --203 тыс 
-select last_status_name, count(distinct msisdn_req), count(*) from uat_ca.mc_alladin_subs group by 1 order by 1;
 
-select distinct trunc(create_dttm, 'rm'), count(distinct subs_id) from uat_ca.mc_alladin_subs group by 1 
-
-
-
-
--------------------------------------------------------
---шаг 1 создаем пустую таблицу со структурой
---шаг 2 пишем макрос
---шаг 3 добавляем значения
+--ГёГ ГЈ 1 Г±Г®Г§Г¤Г ГҐГ¬ ГЇГіГ±ГІГіГѕ ГІГ ГЎГ«ГЁГ¶Гі Г±Г® Г±ГІГ°ГіГЄГІГіГ°Г®Г©
+--ГёГ ГЈ 2 ГЇГЁГёГҐГ¬ Г¬Г ГЄГ°Г®Г±
+--ГёГ ГЈ 3 Г¤Г®ГЎГ ГўГ«ГїГҐГ¬ Г§Г­Г Г·ГҐГ­ГЁГї
 
 replace macro nps_all (s_nps date, e_nps date, sdate date, edate date) as (
 
@@ -45,16 +37,16 @@ select a.* from (
 	      else '56 +' end as age_gr,
 	-- a.gender,
 	 case when a.gender is null or a.gender = -1 then 'n/a'
-	      when a.gender = 0 then 'М'
-	      when a.gender = 1 then 'Ж'
+	      when a.gender = 0 then 'ГЊ'
+	      when a.gender = 1 then 'Г†'
 	      end as gender,
 	 a.data_gb,
 	 case when data_gb is null then '0'
 	      when data_gb = 0 then '0'
 	      when data_gb <= 10 then '10'
-	      when data_gb <= 30 then 'от 10-30'
-	      when data_gb <= 50 then 'от 30-50'
-	      when data_gb <= 100 then 'от 50-100'
+	      when data_gb <= 30 then 'Г®ГІ 10-30'
+	      when data_gb <= 50 then 'Г®ГІ 30-50'
+	      when data_gb <= 100 then 'Г®ГІ 50-100'
 	      else '100+'
 	 end as data_gr,
 	--
@@ -84,25 +76,25 @@ where 1=0 ;
 );
 
 --2022
-/*Январь*/     Execute nps_all (date '2022-01-01', date '2022-02-01', date '2021-12-01', date '2022-02-01');
-/*Февраль*/    Execute nps_all (date '2022-02-01', date '2022-03-01', date '2022-01-01', date '2022-03-01');
-/*Март*/       Execute nps_all (date '2022-03-01', date '2022-04-01', date '2022-02-01', date '2022-04-01');
-/*Апрель*/     Execute nps_all (date '2022-04-01', date '2022-05-01', date '2022-03-01', date '2022-05-01');
-/*Май*/        Execute nps_all (date '2022-05-01', date '2022-06-01', date '2022-04-01', date '2022-06-01');
-/*Июнь*/       Execute nps_all (date '2022-06-01', date '2022-07-01', date '2022-05-01', date '2022-07-01');
-/*Июль*/       Execute nps_all (date '2022-07-01', date '2022-08-01', date '2022-06-01', date '2022-08-01');
-/*Август*/     Execute nps_all (date '2022-08-01', date '2022-09-01', date '2022-07-01', date '2022-09-01');
-/*Сентябрь*/   Execute nps_all (date '2022-09-01', date '2022-10-01', date '2022-08-01', date '2022-10-01');
-/*Октябрь*/    Execute nps_all (date '2022-10-01', date '2022-11-01', date '2022-09-01', date '2022-11-01');
-/*Ноябрь*/     Execute nps_all (date '2022-11-01', date '2022-12-01', date '2022-10-01', date '2022-12-01');
-/*Декабрь*/    Execute nps_all (date '2022-12-01', date '2023-01-01', date '2022-11-01', date '2023-01-01');
+/*ГџГ­ГўГ Г°Гј*/     Execute nps_all (date '2022-01-01', date '2022-02-01', date '2021-12-01', date '2022-02-01');
+/*Г”ГҐГўГ°Г Г«Гј*/    Execute nps_all (date '2022-02-01', date '2022-03-01', date '2022-01-01', date '2022-03-01');
+/*ГЊГ Г°ГІ*/       Execute nps_all (date '2022-03-01', date '2022-04-01', date '2022-02-01', date '2022-04-01');
+/*ГЂГЇГ°ГҐГ«Гј*/     Execute nps_all (date '2022-04-01', date '2022-05-01', date '2022-03-01', date '2022-05-01');
+/*ГЊГ Г©*/        Execute nps_all (date '2022-05-01', date '2022-06-01', date '2022-04-01', date '2022-06-01');
+/*Г€ГѕГ­Гј*/       Execute nps_all (date '2022-06-01', date '2022-07-01', date '2022-05-01', date '2022-07-01');
+/*Г€ГѕГ«Гј*/       Execute nps_all (date '2022-07-01', date '2022-08-01', date '2022-06-01', date '2022-08-01');
+/*ГЂГўГЈГіГ±ГІ*/     Execute nps_all (date '2022-08-01', date '2022-09-01', date '2022-07-01', date '2022-09-01');
+/*Г‘ГҐГ­ГІГїГЎГ°Гј*/   Execute nps_all (date '2022-09-01', date '2022-10-01', date '2022-08-01', date '2022-10-01');
+/*ГЋГЄГІГїГЎГ°Гј*/    Execute nps_all (date '2022-10-01', date '2022-11-01', date '2022-09-01', date '2022-11-01');
+/*ГЌГ®ГїГЎГ°Гј*/     Execute nps_all (date '2022-11-01', date '2022-12-01', date '2022-10-01', date '2022-12-01');
+/*Г„ГҐГЄГ ГЎГ°Гј*/    Execute nps_all (date '2022-12-01', date '2023-01-01', date '2022-11-01', date '2023-01-01');
 
 
 --2023
-/*Январь*/     Execute nps_all (date '2023-01-01', date '2023-02-01', date '2022-12-01', date '2023-02-01');
-/*Февраль*/    Execute nps_all (date '2023-02-01', date '2023-03-01', date '2023-01-01', date '2023-03-01');
-/*Март*/       Execute nps_all (date '2023-03-01', date '2023-04-01', date '2023-02-01', date '2023-04-01');
-/*Апрель*/     Execute nps_all (date '2023-04-01', date '2023-05-01', date '2023-03-01', date '2023-05-01');
+/*ГџГ­ГўГ Г°Гј*/     Execute nps_all (date '2023-01-01', date '2023-02-01', date '2022-12-01', date '2023-02-01');
+/*Г”ГҐГўГ°Г Г«Гј*/    Execute nps_all (date '2023-02-01', date '2023-03-01', date '2023-01-01', date '2023-03-01');
+/*ГЊГ Г°ГІ*/       Execute nps_all (date '2023-03-01', date '2023-04-01', date '2023-02-01', date '2023-04-01');
+/*ГЂГЇГ°ГҐГ«Гј*/     Execute nps_all (date '2023-04-01', date '2023-05-01', date '2023-03-01', date '2023-05-01');
 -------------------------------------------------
 
 select * from subs_all
