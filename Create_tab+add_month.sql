@@ -94,6 +94,25 @@ a.create_date,
 							  
 where  create_date > date '2022-01-01' 
 --and event_date_instal is not null
+	
+	
+	
+	
+----------------------------------------------
+	
+-- Пример с фильтрами дат	
+select t1.subs_id,
+t1.create_date - cast(t2.event_date_instal as date) as diff_day,
+t1.create_date, t2.event_date_instal, 
+last_status_name
+from uat_ca.v3_nps_bu t1 
+join uat_ca.mc_alladin_subs t2 on t1.subs_id =  t2.subs_id
+							  AND trunc(t2.event_date_instal, 'dd')							  
+							  BETWEEN ADD_MONTHS(trunc(t1.create_date, 'rm'), -1)
+							  AND t1.create_date	
+							  
+							  
+where  create_date > date '2022-01-01' 
 
 
 --проверка на несовпадения
