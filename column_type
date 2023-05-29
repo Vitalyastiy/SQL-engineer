@@ -1,0 +1,5 @@
+
+-- Типы данных в таблице
+SELECT ColumnName, ColumnType
+FROM dbc.ColumnsV
+WHERE TableName = 'vf_alladin_250523_ourtd';
