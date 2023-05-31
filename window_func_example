@@ -1,0 +1,12 @@
+
+-- dense_rank-- нумерует без пропуска.
+select dense_rank() over(order by sum_n_messages desc )
+,  id_guest
+, sum_n_messages 
+from (
+  select  id_guest, 
+  sum(n_messages) sum_n_messages 
+  from airbnb_contacts 
+  group by 1 
+  order by 2 desc
+) t;
