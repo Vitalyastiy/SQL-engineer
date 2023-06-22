@@ -1,3 +1,17 @@
+--явно задать границы фрейма
+select  name, department, salary, round((salary*100.0/high))
+from(
+	select  name, department,   salary,
+	last_value(salary) over w as high
+	from employees
+	window w as (
+		partition by department 
+		order by salary
+		rows  between  unbounded preceding and unbounded following)
+	order by city, salary asc
+) 	t
+
+
 
 -- dense_rank-- нумерует без пропуска.
 select dense_rank() over(order by sum_n_messages desc )
