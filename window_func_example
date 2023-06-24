@@ -1,3 +1,19 @@
+--скользящее
+select year, month, income , 
+avg(income) over (order by month
+				 rows between 1 preceding  and 0 following) as qwe
+from expenses
+
+
+
+--нарастающий итог
+select id, name, department, salary,
+sum(salary) over(partition by department 
+				rows between unbounded  preceding  and 0 following)
+from employees
+
+
+
 --явно задать границы фрейма
 select  name, department, salary, round((salary*100.0/high))
 from(
