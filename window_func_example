@@ -1,3 +1,6 @@
+--rows between unboundend precending and currentw row
+
+
 --скользящее
 select year, month, income , 
 avg(income) over (order by month
