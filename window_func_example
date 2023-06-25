@@ -1,3 +1,10 @@
+--обратная сортировка данных
+select id, name, department,salary, 
+count(*) over(order by salary desc
+			 rows between unbounded preceding and current row)						
+from employees
+order by  salary, id
+
 
 --rows between unboundend precending and currentw row
 
