@@ -1,3 +1,18 @@
+--среднее без учета значения
+SELECT 
+    name,
+    salary,
+    avg(salary) OVER (
+        ORDER BY salary, id
+        RANGE BETWEEN unbounded PRECEDING AND unbounded following
+		exclude current row
+    ) AS max_salary
+FROM employees
+ORDER BY salary, id;
+
+
+
+
 --клдичество по входящих в группу +-5 от зарплаты
 select id, name, salary, 
 count(*) over(order by salary desc
