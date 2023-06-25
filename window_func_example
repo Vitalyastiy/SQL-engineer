@@ -1,3 +1,13 @@
+--клдичество по входящих в группу +-5 от зарплаты
+select id, name, salary, 
+count(*) over(order by salary desc
+			 range between 5 preceding and 5 following)
+						
+from employees
+order by  salary, id
+
+
+
 --найти макисмальное из ближайшего значения
 select id, name, salary, 
 max(salary) over(order by salary desc
