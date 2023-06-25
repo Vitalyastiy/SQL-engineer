@@ -1,3 +1,15 @@
+--найти макисмальное из ближайшего значения
+select id, name, salary, 
+max(salary) over(order by salary desc
+			 rows between 1 preceding and 1 following)
+						
+from employees
+order by  salary, id
+
+
+
+
+
 --обратная сортировка данных
 select id, name, department,salary, 
 count(*) over(order by salary desc
