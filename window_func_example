@@ -43,6 +43,7 @@ from expenses
 select id, name, department, salary,
 sum(salary) over(partition by department 
 				rows between unbounded  preceding  and 0 following)
+				--rows between unbounded  preceding  and current row)
 from employees
 
 
