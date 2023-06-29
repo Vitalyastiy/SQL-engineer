@@ -1,3 +1,14 @@
+-- Среднее с условием
+select id, name, salary,
+avg(salary) over(order by salary 
+				rows between 0 preceding and 3 following 
+				exclude current row) av
+from employees
+order by salary, id
+
+
+
+
 --среднее без учета значения
 SELECT 
     name,
