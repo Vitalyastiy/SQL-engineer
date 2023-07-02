@@ -1,4 +1,4 @@
--- Среднее с условием
+--  Среднее с условием
 select id, name, salary,
 avg(salary) over(order by salary 
 				rows between 0 preceding and 3 following 
