@@ -1,3 +1,13 @@
+--filter
+
+select id, name, salary,
+round(salary*100/avg(salary) over()),
+round(salary*100/avg(salary)  filter(where city like 'Москва') over()),
+round(salary*100/avg(salary)  filter(where city like 'Самара') over())
+
+from employees
+order by  id
+
 
 -- скользящее
 Чтобы посчитать скользящее среднее за последние три дня, удобнее всего использовать оконную функцию AVG(), указав определенный диапазон строк (ROWS BETWEEN 2 PRECEDING AND CURRENT ROW): 
