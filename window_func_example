@@ -1,3 +1,22 @@
+-- нарастающий итог
+
+select plan, year, month, revenue 
+, sum(revenue) over w as eee
+from sales 
+where month in (1,2,3) and year = 2020
+window w as (partition by  plan order by month )
+
+order by plan, month
+
+
+
+
+
+
+
+
+
+
 --lag, доля
 
 select year, month, revenue ,
