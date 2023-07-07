@@ -1,3 +1,15 @@
+--lag, доля
+
+select year, month, revenue ,
+
+lag(revenue) over(order by month),
+round(revenue::decimal/lag(revenue) over(order by month) * 100)
+from sales 
+where plan = 'gold' and year = 2020
+order by month
+
+
+
 --filter
 
 select id, name, salary,
