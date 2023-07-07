@@ -1,3 +1,15 @@
+
+--условное заполнение одного столбца, другим
+select year, month, revenue
+, avg(case when month = 12 then revenue else null end)
+over (partition by year )
+from sales 
+where plan = 'silver' 
+group by 1,2,3
+order by year,  month
+
+
+
 --скользящее
 select year, month, revenue, 
  AVG(revenue) OVER (ORDER BY  month
