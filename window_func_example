@@ -1,3 +1,22 @@
+-- ранжирование runk - пропускает, dence_runk -нет
+select 	year, month,
+	row_number() over (order by silv desc) sil , 
+	row_number() over (order by gold desc) gl , 
+	row_number() over (order by plat desc) pl 
+	from(
+		select  year, month, 
+		sum(quantity) filter (where plan = 'silver') silv ,
+		sum(quantity) filter (where plan = 'gold') gold,
+		sum(quantity) filter (where plan = 'platinum') plat
+		from sales 
+		where year = 2020
+		group by 1,2
+		order by month
+	) t1
+order by month 
+
+
+
 -- обратится к фрейму на несколько строк назад лаг
 select* from (	
 	select year,qua,rev, lag(rev, 4) over() 
