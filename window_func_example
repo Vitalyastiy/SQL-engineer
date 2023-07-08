@@ -1,3 +1,23 @@
+-- обратится к фрейму на несколько строк назад лаг
+select* from (	
+	select year,qua,rev, lag(rev, 4) over() 
+	from(
+		select year,  
+		case when month <4 then 1 
+			 when month >3 and month <7 then 2
+			 when month >6 and month <10 then 3
+			 when month >9  then 4 else 0 end qua
+
+		, sum(revenue) rev
+
+		from sales 
+		--where 1=1 and year = 2020--plan = 'silver' 
+		group by 1,2
+		order by year , qua) t1
+) t where lag is not null
+
+
+
 -- нтайл разбить на группы
 select year, month, sum(revenue)  ,
 ntile(3) over(order by sum(revenue) desc)
