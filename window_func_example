@@ -1,3 +1,13 @@
+--сумма суммы и доля
+select year, plan, sum(revenue),
+sum(sum(revenue)) over(partition by year),
+sum(revenue)/sum(sum(revenue)) over(partition by year)
+from sales 
+where 1=1 --plan = 'silver' 
+group by 1,2
+order by year,  plan
+
+
 
 --условное заполнение одного столбца, другим
 select year, month, revenue
