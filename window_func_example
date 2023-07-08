@@ -1,3 +1,12 @@
+-- нтайл разбить на группы
+select year, month, sum(revenue)  ,
+ntile(3) over(order by sum(revenue) desc)
+from sales 
+where 1=1 and year = 2020--plan = 'silver' 
+group by 1,2
+order by sum(revenue) desc
+
+
 --сумма суммы и доля
 select year, plan, sum(revenue),
 sum(sum(revenue)) over(partition by year),
