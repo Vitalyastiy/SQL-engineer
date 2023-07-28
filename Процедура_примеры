@@ -1,0 +1,223 @@
+
+-при запуске полностью перезаписывает текущую табличку.
+CALL uat_ca.vf_for_tg_test_proc()
+
+REPLACE PROCEDURE uat_ca.vf_for_tg_test_proc()
+BEGIN
+  IF EXISTS(
+    SELECT*FROM DBC.TABLES
+    WHERE DATABASENAME ='uat_ca' AND TABLENAME ='vf_for_tg_test')
+    THEN 
+        drop TABLE uat_ca.vf_for_tg_test;
+  END IF;
+  CREATE MULTISET TABLE uat_ca.vf_for_tg_test AS
+  (
+    SELECT 
+      TRUNC(create_date, 'rm') AS create_month, 
+      AVG(nps) AS nps
+    FROM uat_ca.v3_nps_bu
+    WHERE trunc(create_date, 'rm') <'2022-01-01'
+	  and trunc(create_date, 'rm') >='2020-01-01'
+      AND point_name IN ('Мобильный интернет')
+    GROUP BY 1
+  )
+  WITH DATA
+  NO PRIMARY INDEX;
+END;
+
+
+--
+-- пример процедуры
+diagnostic helpstats on for session;
+
+
+
+REPLACE PROCEDURE uat_ca.nps_data_adhoc2 (in sdate date, in edate date)
+SQL SECURITY INVOKER
+BEGIN
+
+--объявление переменных
+DECLARE proc varchar(50);
+DECLARE s_date date;
+DECLARE e_date date;
+DECLARE LOAD_ID int;
+DECLARE ERR_MSG VARCHAR(4000) DEFAULT '';
+DECLARE ERR_SQLCODE INT;
+DECLARE ERR_SQLSTATE INT;
+DECLARE ROW_CNT INT;
+
+-- Ошибка на этапе запуска SQL кода
+DECLARE EXIT HANDLER FOR SqlException
+BEGIN
+SET ERR_SQLCODE = Cast(SqlCode AS INTEGER);
+SET ERR_SQLSTATE = Cast(SqlState AS INTEGER);
+SELECT ErrorText INTO :ERR_MSG FROM dbc.errormsgs WHERE Errorcode = :ERR_SQLCODE;
+CALL uat_ca.prc_debug (:proc, :load_id, session, 0, 'An error occured during execution: ' || :ERR_MSG);
+END;
+
+
+SET proc = 'nps_adhoc_4g';           -- наименование расчета
+SET s_date =  sdate - interval '120' day;
+SET e_date =  edate;
+
+select max(zeroifnull(loadid)+1) into load_id
+from uat_ca.mc_logs;
+
+-- логирование начала расчета данных
+CALL uat_ca.prc_debug (proc,:load_id,session,0,'START');
+
+
+
+create multiset volatile table tmp ,no log (
+ create_date date format 'yy/mm/dd',
+ branch_id decimal(4,0),
+ subs_id decimal(12,0)
+)
+primary index (subs_id)
+on commit preserve rows;
+
+
+
+insert into tmp
+select
+ a.create_date,
+ a.branch_id,
+ a.subs_id
+from uat_ca.v3_nps_bu a
+inner join uat_ca.mc_nps_detail_step_5 t1 on a.subs_id = t1.subs_id
+ and a.create_date = t1.create_date
+ and a.point_name = t1.point_name
+ and t1.point_name = 'Мобильный интернет'
+ and t1.create_date >= :sdate
+ and t1.create_date < :edate
+-- and t1.create_date >= date '2022-01-01'
+-- and t1.create_date < date '2022-02-01'
+ and t1.usim = 'Y'
+ and t1.tr_4g is null
+ and t1.device_type in ('Smartphone', 'TABLET')
+where 1=1
+ and a.point_name = 'Мобильный интернет'
+ and a.create_date >= :sdate
+ and a.create_date < :edate
+-- and a.create_date >= date '2022-01-01'
+-- and a.create_date < date '2022-02-01'
+;
+
+
+
+COLLECT STATISTICS
+ COLUMN (SUBS_ID),
+ COLUMN (BRANCH_ID),
+ COLUMN (BRANCH_ID ,SUBS_ID)
+ON tmp;
+
+
+
+create multiset volatile table subs_data ,no log (
+ create_date date format 'yy/mm/dd',
+ report_date date format 'yy/mm/dd',
+ branch_id decimal(12,0),
+ subs_id decimal(12,0),
+ all_vol decimal(18,0),
+ download_vol decimal(18,0),
+ upload_vol decimal(18,0),
+ service_generation_code varchar(32) character set unicode casespecific)
+primary index (subs_id)
+on commit preserve rows;
+
+
+
+insert into subs_data
+select
+ t1.create_date,
+ a.report_date,
+ a.branch_id,
+ a.subs_id,
+ a.all_vol,
+ a.download_vol,
+ a.upload_vol,
+ a.service_generation_code
+from prd2_bds_v2.subs_usg_d a
+inner join (select distinct subs_id, branch_id, create_date from tmp) t1 on a.subs_id = t1.subs_id
+ and a.branch_id = t1.branch_id
+where 1=1
+ and a.report_date >= s_date
+ and a.report_date < e_date
+-- and a.report_date >= date '2021-09-12'
+-- and a.report_date < date '2022-02-01'
+ and a.traffic_type_id = 4
+;
+
+
+
+create multiset volatile table subs_data2 ,no log (
+ type_period varchar(15) character set unicode not casespecific,
+ create_date date format 'yy/mm/dd',
+ branch_id decimal(12,0),
+ subs_id decimal(12,0),
+ service_generation_code varchar(32) character set unicode casespecific,
+ all_vol decimal(18,0),
+ download_vol decimal(18,0),
+ upload_vol decimal(18,0))
+primary index (subs_id)
+on commit preserve rows;
+
+
+
+insert into subs_data2
+select
+ type_period,
+ create_date,
+ branch_id,
+ subs_id,
+ service_generation_code,
+ sum(all_vol) as all_vol,
+ sum(download_vol) as download_vol,
+ sum(upload_vol) as upload_vol
+from (
+select
+ create_date - report_date as lt_day,
+ case when lt_day < 0 then '06 после опроса'
+      when lt_day < 31 then '01 1m'
+      when lt_day < 61 then '02 2m'
+      when lt_day < 91 then '03 3m'
+      when lt_day < 121 then '04 4m'
+      when lt_day < 151 then '05 5m'
+ else 'other' end as type_period,
+ create_date,
+ report_date,
+ branch_id,
+ subs_id,
+ all_vol,
+ download_vol,
+ upload_vol,
+ service_generation_code
+from subs_data
+where 1=1
+) a
+group by 1,2,3,4,5
+;
+
+
+COLLECT STATISTICS
+ COLUMN (TYPE_PERIOD)
+ON subs_data2;
+
+
+insert into uat_ca.mc_nps_adhoc_4g
+select * from subs_data2
+where 1=1
+ and type_period in ('01 1m','02 2m','03 3m','04 4m')
+;
+
+
+
+-- логирование окончания расчета данных
+CALL uat_ca.prc_debug (proc,:load_id,session,1,'END');
+
+
+drop table tmp;
+drop table subs_data;
+drop table subs_data2;
+
+END;
