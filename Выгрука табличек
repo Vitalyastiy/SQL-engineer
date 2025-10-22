@@ -1,0 +1,6 @@
+SELECT * 
+FROM information_schema.tables 
+
+
+--выгрузить все таблички и схемы в бд
+
